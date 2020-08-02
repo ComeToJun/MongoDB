@@ -1,3 +1,169 @@
+탄생배경
+2000년대 초 
+
+실리콘 밸리에서 신생 it 기업들이 빅데이터에 손을 대기 시작
+그 중 10 gen 이라는 회사.
+
+SaaP 라는 것을 하는 회사
+플랫폼을 서비스로 제공하는 회사.
+
+아마존 웹 서비스 생각하면 됨
+
+핸들해야 하는 관리해야 하는 데이터들이 너무 많아지기 시작.
+
+그만큼 데이터를 엄청나게 사용하는 회사가 늘어나기 시작.
+
+감당이 안되니 자체적으로 몽고db를 2007년에 만들어서 쓰기 시작
+2009년에 오픈소스로 공개
+
+Humongous 라는 영어단어에서 가져온 것.
+
+이러면서 회사 이름까지 MongoDB 로 바꿔버림
+
+당시 전체 데이터베이스 시장에서는 미미한 비율로 점유를 했지만,
+빅데이터라는 분야에서는 한줄기 빛.
+
+관계형 데이터베이스와 뭐가 다른가.
+
+테이블이 있다고 했을때.
+
+전세계 몇천만건의 데이터를 관리한다고 했을때, 많아지면 많아질수록 무거워질수밖에 없음
+
+파티셔닝을 해보자 (물리적으로 나눠서 따로 보관) 예) A 에 100개 B에 100개 등등
+가능은 하지만, 이렇게 하면, 걸쳐져 있는 정보를 가져올때 나눠져 있는 것들을 전부 기억해야 함.
+만약 조인이나 지울때도 같은 방식이 되면 프로그래머가 전부 감당을 해야해서, 비지니스 로직에 신경을 써야 할개발자들이
+db 로직에 계속 비중을 줘야 하는 상황이 발생 // 시간적인 낭비가 발생
+
+몽고디비는 데이터베이스 안에서 파티셔닝을 제공해줌 ** shading 을 지원
+몽고디비 자체 안에서 디비관리용 config 가 있어서 
+쪼개져있는걸 생각하지 않고 본인은 shading 해놓은것만 이용 가능
+이론적으로는 n 개까지 shading 이 가능
+데이터를 분산해서 보관을 해주지만, 수정이나 병합등은 자체적으로 전부 해결해주기 때문에
+따로 신경쓰지 않고도 자료를 마음대로 불러올 수 있음
+
+***확장성이 굉장히 좋다
+
+
+HBACE hard 플랫폼용 데이터베이스
+
+Redis 전체 데이터베이스를 100이라고 보면 실제 사용하는건 50, 빈번하게 쓰는건 20 정도
+ - 이 개념을 이용해서 주로 쓰느걸 메모리에 전체를 올려버림
+ - 메모리 안에서 해버리니 속도가 엄청 빠름
+ - 다른 것들이 필요해지면, 그것만 가져와서 replace 해버림
+ - 속도가 중요해지다 보니 최근 핫 해짐
+ - 쿠팡이나 인스타도 사용
+ - 공식적인건 리눅스 버전에서만 사용 가능.
+
+
+HBACE 와 Redis 는 시간상 물리적으로 부족하기에 Mongodb만 하기로 함
+
+
+-----------------------------------------------------------------------
+설치시 이동경로만 잘 확인할것
+Compass 관리도구라 같이 깔면 인스톨이 안될 가능성이 있기 때문에
+빼고 하는걸 추천
+---------------------------------------------------------------------
+
+사전 지식
+
+1. 스키마가 없다.
+ - 구조가 없다.
+ - 도큐먼트 베이스 데이타베이스 
+  즉, 데이터를 도큐먼트 식으로 저장한다.
+ 이걸 위해선 문법이 필요한데 이때 JSON 문법으로 사용한다.
+
+서버간 웹통신때 심플하게 사람이 읽고 만들기 쉽게, 전송도 쉽게 할 수 있게 하기 위해 만든 언어
+  무조건 { }
+  키와 값으로 되어있음
+ {"name" : "kim"}  이걸 하나의 도큐먼트라고 이야기 한다.
+
+{"age" : 17, "sex" : m} ** , 로 여러개가 올 수 있다.
+{"friends" : ["kim", "Joe"] //배열}
+
+
+"friends" : {"kim", "Joe"} } **하나의 도큐먼트가 또 들어올 수 있음 (n개 중복 가능)
+
+
+*** 타입이 정해져있지 않다. 넣고 싶은거 다 넣을 수 있음.
+
+100% Json은 아님 Json like -> Json + mongodb 에서 제공하는것도 같이 포함
+BSON 이라고 부르는데 어찌되었건 Json 을 바탕으로 한다.
+
+
+1. 용어
+ - document : row
+ - collection : table
+ - _id : primary key
+
+2. document 대소문자 구분 ( 관례는 소문자)
+- type sensitive
+{"foo" : 3}
+{"foo" : "3"}    **정수와 문자열, 다르다.
+
+{"foo" : 3}
+{"Foo" : 3} **다름
+
+documents 내의 key/value 쌍은 순서를 갖는다.
+{"x": 1, "y": 2}  {"y": 2, "x": 1} 		//다른의미
+
+
+3. Collections
+ -Dynamic schemas
+ -서로 다른 shape 을 가지는 documents {"greeting": "Hello, world!"} 과 {"foo" : 5} 는 하나의 collection 에 
+저장될 수 있음
+- any documnet can be put into any collection
+
+4. Databases
+- MongoDB groups collections into databases
+- A single instance of MongoDB can host several databases
+- A database has its own permissions, and each database is stored in separae file on disk
+- Database names are case-sensitive, even on non-case-sensetive filesystems. To keep things simple, try to just use lowercase characters.
+- Database names are limited to a maximum of 64 bytes. **외울 필요 없음
+
+-네이스페이스 사용
+DB: cms
+collection : blog.posts
+blog.posts collection의 네임스페이스는 cms.blog.posts 임
+네임스이스의 길이는 121 bytes 제한. **외울 필요 없음
+
+5. 예약된 database 명
+- admin
+root database
+- local
+This database will never be replicated and can be used to store any collections that should be local t a single sever
+- config
+	sharding 이 구현되었을때, 데이터베이스 구성 정보를 저장하는 용도
+
+
+
+함수로만 이루어져 있음
+
+Ordered Insert
+insertMany 의 두번째 파라미터로 true(기본값)을 주면, 제공되는 데이터 순서대로 삽입된다.
+이러한 경우, 삽입 도중 에러를 만나면 그 이후의 데이터는 삽입되지 않는다.
+
+
+Unordered Insert
+insertMany 의 두번째 파라미터로 false(기본값)을 주면, MongoDB는 성능 향상을 위해 삽입되는 데이터를 내부적으로
+재정렬 한다. 
+삽입 도중 에러가 발생한 document만 제외하고 나머지 documents들은 정상적으로 삽입된다.
+
+UpdateOne, UpdateMan 는 인자로 필터를 받으며, 두번째 인자로 변경될 documents 의 내용을 받는다.
+
+replaceOne은 첫번째 인자로 필터를 받으며, 두번째 인자로 대치할 documnet 내용을 받는다.
+만약, 2개 이상의 update가 특정 documnet에 동시에 전달 될 때는 먼저 서버에 도착한 update 내용이 반영되고
+다음 도착한 내용이 뒤이어 적용된다. 결국, 마지막 전달된 내용이 최종적으로 반영된다.
+
+Update 연산자 사용
+- 일반적으로 document의 특정 필드만 업데이트가 필요하다. 이때 update 연산자를 이용할 수 있다.
+update 연산자는 변경, 더하기, 삭제, 배열 및 embedded document 등의 복잡한 연산을 위해 사용된다.
+
+
+robomongo 몽고디비 관리프로그램.
+
+---------------------------------------------------------------------------------------------------------------
+
+
 
 C:\Users\user>d:
 
