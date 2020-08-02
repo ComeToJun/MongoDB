@@ -1,0 +1,603 @@
+
+C:\Users\user>d:
+
+D:\>mongo
+MongoDB shell version v4.2.8
+connecting to: mongodb://127.0.0.1:27017/?compressors=disabled&gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("6423993e-5848-4d12-8f63-a318dd3714dd") }
+MongoDB server version: 4.2.8
+Server has startup warnings:
+2020-07-06T09:23:59.821+0900 I  CONTROL  [initandlisten]
+2020-07-06T09:23:59.821+0900 I  CONTROL  [initandlisten] ** WARNING: Access control is not enabled for the database.
+2020-07-06T09:23:59.822+0900 I  CONTROL  [initandlisten] **          Read and write access to data and configuration is unrestricted.
+2020-07-06T09:23:59.822+0900 I  CONTROL  [initandlisten]
+---
+Enable MongoDB's free cloud-based monitoring service, which will then receive and display
+metrics about your deployment (disk utilization, CPU, operation statistics, etc).
+
+The monitoring data will be available on a MongoDB website with a unique URL accessible to you
+and anyone you share the URL with. MongoDB may use this information to make product
+improvements and to suggest MongoDB products and deployment options to you.
+
+To enable free monitoring, run the following command: db.enableFreeMonitoring()
+To permanently disable this reminder, run the following command: db.disableFreeMonitoring()
+---
+
+>
+> show dbs
+admin   0.000GB
+config  0.000GB
+local   0.000GB
+
+
+post = {"title" : "My Blog Post",
+content" : "Here's my blog post.","date" : new Date()}
+
+ db.blog.insertOne(post)
+
+db.blog.find()
+
+db.blog.findOne()
+
+post.comments = []
+[ ]
+
+db.blog.update({"title": "My Blog Post"}, post)
+
+db.blog.findOne()
+{
+        "_id" : ObjectId("5f027e74250795271a99a1f5"),
+        "title" : "My Blog Post",
+        "content" : "Here's my blog post.",
+        "date" : ISODate("2020-07-06T01:26:40.577Z"),
+        "comments" : [ ]
+}
+> db.blog.remove({"title": "My Blog Post"})
+WriteResult({ "nRemoved" : 1 })
+
+> db.blog.findOne()
+null
+
+
+
+
+
+
+db.movies.insertMany([ {"_id": 0, "title" : "Top Gun"},
+{"_id" : 1, "title" : "Back to the Futrue"},			//중복되는 키는 먼저 나오는 키만 출력되고 나머지는 출력되지 않는다.
+{"_id" : 1, "title" : "Gremlins"},
+{"_id" : 2, "title" : "Aliens"}])
+
+db.movies.find()
+{ "_id" : 0, "title" : "Top Gun" }
+{ "_id" : 1, "title" : "Back to the Futrue" }
+
+db.movies.insertMany([
+{"_id" : 3, "title" : "Sixteen Candles"},
+{"_id" : 4, "title" : "The Terminator"},
+{"_id" : 4, "title" : "The Princess Bride"},
+{"_id" : 5, "title" : "Scarface"}],
+{"ordered" : false})			// ordered 에 false 가 들어가면 중복되는건 위에 하나만 나오되, 그 다음에 있는 데이터도 출력된다.
+
+
+db.movies.find()
+{ "_id" : 0, "title" : "Top Gun" }
+{ "_id" : 1, "title" : "Back to the Futrue" }
+{ "_id" : 3, "title" : "Sixteen Candles" }
+{ "_id" : 4, "title" : "The Terminator" }
+{ "_id" : 5, "title" : "Scarface" }
+
+db.movies.deleteOne({"_id" : 4})
+
+db.movies.find()
+{ "_id" : 0, "title" : "Top Gun" }
+{ "_id" : 1, "title" : "Back to the Futrue" }
+{ "_id" : 3, "title" : "Sixteen Candles" }
+{ "_id" : 5, "title" : "Scarface" }
+db.movies.drop()
+true
+
+db.movies.insertMany([
+{"_id" : 0, "title" : "Top Gun", "year": 1986},
+{"_id" : 1, "title" : "Backt to the Future", "year" : 1985},
+{"_id" : 3, "title" : "Sixteen Candles", "year" : 1984},
+{"_id" : 4, "title" : "The Terminator", "year" : 1984},
+{"_id" : 5, "title" : "Scarface", "year" : 1983 }])
+
+db.movies.deleteMany({"year" : 1984})
+
+db.movies.find()
+{ "_id" : 0, "title" : "Top Gun", "year" : 1986 }
+{ "_id" : 1, "title" : "Backt to the Future", "year" : 1985 }
+{ "_id" : 5, "title" : "Scarface", "year" : 1983 }
+
+db.movies.deleteMany({})
+{ "acknowledged" : true, "deletedCount" : 3 }
+
+
+
+
+
+
+db.users.insertOne({ "name" : "joe", "friends" : 32, "enemies" : 2})
+
+> db.users.find()
+var joe = db.users.findOne({ "name" : "joe"})
+db.users.find()
+
+ joe.relationships = { "friends" : joe.friends, "enemies" : joe.enemies}
+{ "friends" : 32, "enemies" : 2 }
+
+
+joe.username = joe.name
+joe
+delete joe.friends
+true
+delete joe.enemies
+true
+delete joe.name
+true
+
+
+db.people.insertMany ([
+{"name" : "joe", "age" : 65},
+{"name" : "joe", "age" : 20},
+{"name" : "joe", "age" : 49}])
+
+joe = db.people.findOne({ "name": "joe", "age" : 20})
+
+> joe.age++
+20
+> joe.age
+21
+> db.people.replaceOne({"name" : "joe"}, joe)
+
+> db.people.find()
+{ "_id" : ObjectId("5f02acde250795271a99a1fc"), "name" : "joe", "age" : 65 }
+{ "_id" : ObjectId("5f02acde250795271a99a1fd"), "name" : "joe", "age" : 20 }
+{ "_id" : ObjectId("5f02acde250795271a99a1fe"), "name" : "joe", "age" : 49 }
+키중복으로 하나도 바뀌지 않음 1fd 로 바꾸려고 전체를 바꾸려고 하니 충돌이 생김
+
+
+
+
+
+db.people.replaceOne({ "_id" : ObjectId("5f02acde250795271a99a1fd")}, joe)
+
+db.people.find()
+{ "_id" : ObjectId("5f02acde250795271a99a1fc"), "name" : "joe", "age" : 65 }
+{ "_id" : ObjectId("5f02acde250795271a99a1fd"), "name" : "joe", "age" : 21 }
+{ "_id" : ObjectId("5f02acde250795271a99a1fe"), "name" : "joe", "age" : 49 }
+
+
+
+
+db.analytics.insertOne({"url" : "www.example.com", "pageview" : 52})
+
+db.analytics.find()
+{ "_id" : ObjectId("5f02b7bab158eefd070871c2"), "url" : "www.example.com", "pageview" : 52, "pageviews" : 1 }
+{ "_id" : ObjectId("5f02b81eb158eefd070871c3"), "url" : "www.example.com", "pageview" : 52 }
+{ "_id" : ObjectId("5f02ba28250795271a99a1ff"), "url" : "www.example.com", "pageview" : 52 }
+
+> db.analytics.updateOne({"url" : "www.example.com"}, {"$inc":  {"pageviews" : 1}})
+
+db.analytics.find()
+{ "_id" : ObjectId("5f02b7bab158eefd070871c2"), "url" : "www.example.com", "pageview" : 52, "pageviews" : 2 }
+{ "_id" : ObjectId("5f02b81eb158eefd070871c3"), "url" : "www.example.com", "pageview" : 52 }
+{ "_id" : ObjectId("5f02ba28250795271a99a1ff"), "url" : "www.example.com", "pageview" : 52 }
+
+
+
+
+
+
+
+> db.users.insertOne({"name" : "joe", "age" : 30, "sex" : "male", "location" : "Seoul"})
+
+db.users.updateOne({"name" : "joe"},
+{"$set" : {"favorite book" : "War and Peace"}})
+
+
+db.users.find().pretty()
+
+db.users.updateOne({"name" : "joe"},
+"$set" : {"favorite book" : "Green Eggs and Ham"}})
+{ "acknowledged" : true, "matchedCount" : 1, "modifiedCount" : 1 }
+> db.users.find().pretty()
+{
+        "_id" : ObjectId("5f02becd250795271a99a200"),
+        "name" : "joe",
+        "age" : 30,
+        "sex" : "male",
+        "location" : "Seoul",
+        "favorite book" : "Green Eggs and Ham"
+}
+ db.users.updateOne({"name" : "joe"},
+{"$set" : {"favorite book" :
+ ["Cat's Cradle", "Foundation Trilogy", "ender's Game"]}})
+
+db.users.find().pretty()
+{
+        "_id" : ObjectId("5f02becd250795271a99a200"),
+        "name" : "joe",
+        "age" : 30,
+        "sex" : "male",
+        "location" : "Seoul",
+        "favorite book" : [
+                "Cat's Cradle",
+                "Foundation Trilogy",
+                "ender's Game"
+        ]
+}
+
+
+
+
+db.users.updateOne({"name" : "joe"},
+{"$unset" : {"favorite book" : 1}})
+
+db.users.find().pretty()
+{
+        "_id" : ObjectId("5f02becd250795271a99a200"),
+        "name" : "joe",
+        "age" : 30,
+        "sex" : "male",
+        "location" : "Seoul"
+}
+> 1 은 아무 의미가 없음. 어쩔 수 없이 넣어야 하는 값이기 때문에 어떤 값을 넣어도 됨
+
+
+------------------------------------------------------------------------------------------------------------------------------
+
+db.blog.posts.insertOne( {"title" : "A Blog Post",
+"content" : "...",
+"author" : { "name" : "joe", "email" : "joe@example.com" }})
+
+
+db.blog.posts.updateOne({"author.name" : "joe"},
+{"$set" : {"author.name": "joe schmoe"}})
+
+db.blog.posts.findOne()
+{
+        "_id" : ObjectId("5f02c2cf250795271a99a201"),
+        "title" : "A Blog Post",
+        "content" : "...",
+        "author" : {
+                "name" : "joe schmoe",
+                "email" : "joe@example.com"
+        }
+}
+
+
+
+
+db.games.insertOne({"game" : "pinball", "user" : "joe"})
+
+
+db.games.updateOne({"game" : "pinball", "user" : "joe"},
+{"$inc" : {"score" : 50}})
+
+db.games.findOne()
+{
+        "_id" : ObjectId("5f02c539250795271a99a202"),
+        "game" : "pinball",
+        "user" : "joe",
+        "score" : 50
+}
+
+
+
+db.games.updateOne({"game" : "pinball", "user" : "joe"}, {"$inc" : {"score" : 50 + 10000}})
+
+db.games.findOne()
+{
+        "_id" : ObjectId("5f02c539250795271a99a202"),
+        "game" : "pinball",
+        "user" : "joe",
+        "score" : 10100
+}
+
+> 문자열 "1" 에 숫자 1을 inc 시키면 에러가 난다. **시험문제
+
+> db.strcounts.insertOne({"count" : "1"})
+{
+        "acknowledged" : true,
+        "insertedId" : ObjectId("5f02c764250795271a99a203")
+}
+db.strcounts.updateMany({}, {"$inc" : {"count" : 1})
+
+
+
+
+
+ db.blog.posts.insertMany([
+ {"title" : "A blog post", "content" : "..."},
+ {"title" : "Notice", "content" : "Welcome!!"}])
+
+
+db.blog.posts.updateOne({"title" : "A blog post"},
+{"$push" : {"comments" :
+{"name" : "joe", "email" : "joe@example.com", "content" : "nice post."}}})
+
+
+db.blog.posts.findOne()
+{
+        "_id" : ObjectId("5f02c83c250795271a99a204"),
+        "title" : "A blog post",
+        "content" : "...",
+        "comments" : [
+                {
+                        "name" : "joe",
+                        "email" : "joe@example.com",
+                        "content" : "nice post."
+                }
+        ]
+
+**push 입력순간 배열로 인식 // 배열에 넣어줌
+
+
+*****push 로 넣으면 배열로 인식해서 배열에 또 넣어줌
+
+ db.stock.ticker.updateOne({"_id" : "GOOG"},			
+... {"$push" : {"hourly" : {"$each" : [562.776, 562.790, 559.123]}}})		
+
+** update 되는게 없지만, 문법만 알아둘 것.
+
+each 로 쓰면 배열로 하나씩 넣는게 아닌 한번에 전부 넣어주는게 가능함.
+
+
+
+
+db.movies.insertOne({"genre" : "horror", "top10" :
+ ["aaaa", "bbbb", "cccc", "dddd", "eeeee", "ffffff", "gggg", "hhhh", "iiiii", "jjjjj"]})
+{
+        "acknowledged" : true,
+        "insertedId" : ObjectId("5f02cf37250795271a99a207")
+}
+db.movies.findOne()
+{
+        "_id" : ObjectId("5f02cf37250795271a99a207"),
+        "genre" : "horror",
+        "top10" : [
+                "aaaa",
+                "bbbb",
+                "cccc",
+                "dddd",
+                "eeeee",
+                "ffffff",
+                "gggg",
+                "hhhh",
+                "iiiii",
+                "jjjjj"
+        ]
+}
+
+
+> db.movies.updateOne({"genre" : "horror"},
+{"$push" : {"top10" : {"$each" : ["Nightmare on Elm Street", "Saw"],
+"$slice" : -10}}})
+
+db.movies.findOne()
+{
+        "_id" : ObjectId("5f02cf37250795271a99a207"),
+        "genre" : "horror",
+        "top10" : [
+                "cccc",
+                "dddd",
+                "eeeee",
+                "ffffff",
+                "gggg",
+                "hhhh",
+                "iiiii",
+                "jjjjj",
+                "Nightmare on Elm Street",
+                "Saw"
+        ]
+}
+
+//slice 는 기존 주어진 데이터에서 정해둔 숫자 (-10) 만큼 남게 한다.
+**총 12개가 되어야 하는데 뒤에서부터 10개만 보유하게 한다.
+
+만약 +10이면 앞에서부터 10개, 즉, 뒤에 2개는 들어오지 못한다.
+
+
+> db.movies.insertOne({"genre" : "action", "top10" : [{"name" : "11", "rating" : 4.3},
+{"name" : "222", "rating" : 6.6}, {"name" : "3333", "rating" : 5.5}]})
+{
+        "acknowledged" : true,
+        "insertedId" : ObjectId("5f02d285250795271a99a209")
+
+> db.movies.find().pretty()
+{
+        "_id" : ObjectId("5f02cf37250795271a99a207"),
+        "genre" : "horror",
+        "top10" : [
+                "cccc",
+                "dddd",
+                "eeeee",
+                "ffffff",
+                "gggg",
+                "hhhh",
+                "iiiii",
+                "jjjjj",
+                "Nightmare on Elm Street",
+                "Saw"
+        ]
+}
+{
+        "_id" : ObjectId("5f02d285250795271a99a209"),
+        "genre" : "action",
+        "top 10" : [
+                {
+                        "name" : "11",
+                        "rating" : 4.3
+                },
+                {
+                        "name" : "222",
+                        "rating" : 6.6
+                },
+                {
+                        "name" : "3333",
+                        "rating" : 5.5
+                }
+        ]
+}
+
+
+
+
+
+
+
+> db.movies.updateOne(
+	{"genre" : "action"},
+	{"$push" : {
+		"top10" : {
+			"$each" : [
+					{
+						"name" : "Nightmare on Elm Street",
+						"rating" : 4.1
+					}, 
+					{
+						"name" : "Saw", 
+						"rating" :6.8
+					}
+				],
+			"$slice" : 10, 
+			"$sort" : {"rating" : -1}
+			}
+		}
+	}
+)
+
+{ "acknowledged" : true, "matchedCount" : 1, "modifiedCount" : 1 }				//sort - rating 값이 높은 놈부터 정렬하겠다.
+> db.movies.find().pretty()
+{
+        "_id" : ObjectId("5f02cf37250795271a99a207"),
+        "genre" : "horror",
+        "top10" : [
+                "cccc",
+                "dddd",
+                "eeeee",
+                "ffffff",
+                "gggg",
+                "hhhh",
+                "iiiii",
+                "jjjjj",
+                "Nightmare on Elm Street",
+                "Saw"
+        ]
+}
+{
+    "_id" : ObjectId("5f02e8c1b158eefd070871c6"),
+    "genre" : "action",
+    "top10" : [ 
+        {
+            "name" : "Saw",
+            "rating" : 6.8
+        }, 
+        {
+            "name" : "222",
+            "rating" : 6.6
+        }, 
+        {
+            "name" : "3333",
+            "rating" : 5.5
+        }, 
+        {
+            "name" : "11",
+            "rating" : 4.3
+        }, 
+        {
+            "name" : "Nightmare on Elm Street",
+            "rating" : 4.1
+        }
+    ]
+}
+
+
+*******each 가 있을때 slice 와 sort 를 사용할 수 있다.
+******sort 를 먼저 해서 높은순부터 차례대로 순서를 만들고 slice 로 자른다.
+*****sort -1 은 디센딩 1 은 어센딩
+
+
+> db.products.insertOne({"product name": "Television"})
+{
+        "acknowledged" : true,
+        "insertedId" : ObjectId("5f02d500250795271a99a20a")
+}
+> db.products.updateOne({"product name" : "Television"},
+{$push: {"product color" : "Red"}})
+{ "acknowledged" : true, "matchedCount" : 1, "modifiedCount" : 1 }
+
+>  db.products.updateOne({"product name" : "Television"},
+{$push: {"product color" : "Blue"}})
+{ "acknowledged" : true, "matchedCount" : 1, "modifiedCount" : 1 }
+
+> db.products.findOne()
+{
+        "_id" : ObjectId("5f02d500250795271a99a20a"),
+        "product name" : "Television",
+        "product color" : [
+                "Red",
+                "Blue"
+        ]
+}
+
+> db.products.updateOne({"product color" : {"$ne" : "Red"}}, 		//not exist 라면 넣어라 
+{$push : {"product color" : "Red"}})
+{ "acknowledged" : true, "matchedCount" : 0, "modifiedCount" : 0 }		//Red 가 없으면 Red를 추가하겠다.
+
+
+
+> db.users.drop()
+true
+> db.users.insertOne({"username" : "joe",
+... "emails" : [
+... "joe@example.com",
+... "joe@naver.com",
+... "joe@gmail.com"]})
+{
+        "acknowledged" : true,
+        "insertedId" : ObjectId("5f02db79250795271a99a20b")
+}
+
+
+> db.users.updateOne({"username" : "joe"},
+... {"$addToSet" : {"emails" : "joe@daum.net"}})
+{ "acknowledged" : true, "matchedCount" : 1, "modifiedCount" : 1 }
+> db.users.findOne()
+{
+        "_id" : ObjectId("5f02db79250795271a99a20b"),
+        "username" : "joe",
+        "emails" : [
+                "joe@example.com",
+                "joe@naver.com",
+                "joe@gmail.com",
+                "joe@daum.net"
+        ]
+}
+
+***있으면 들어가고, 없으면 말아라
+
+
+> db.users.updateOne({"username" : "joe"},
+... ... {$addToSet : {"emails" : "joe@naver.com"}})
+{ "acknowledged" : true, "matchedCount" : 1, "modifiedCount" : 0 }
+> db.users.findOne()
+{
+        "_id" : ObjectId("5f02db79250795271a99a20b"),
+        "username" : "joe",
+        "emails" : [
+                "joe@example.com",
+                "joe@naver.com",
+                "joe@gmail.com",
+                "joe@daum.net"
+        ]
+}
+
+이미 있는거니 중복일때는 들어가지 않는다.
+
+
+
+
